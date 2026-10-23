@@ -22,7 +22,7 @@ def predict_image_file():
             img = preprocess_img(request.files['file'].stream)
             pred = predict_result(img)
             return render_template("result.html", predictions=str(pred))
-    except Exception:
+    except Exception:  # pylint: disable=broad-exception-caught
         error = "File cannot be processed."
         return render_template("result.html", err=error)
     return render_template("result.html", err="Invalid request.")
