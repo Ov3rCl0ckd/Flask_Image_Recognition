@@ -19,10 +19,17 @@ def predict_image_file():
     """Handle image upload and return model prediction."""
     try:
         if request.method == 'POST':
-            img = preprocess_img(request.files['file'].stream)
+            if 'file' not in request.files:
+                raise ValueError("No file part")
+            file_obj = request.files['file']
+            if file_obj.filename == '':
+                raise ValueError("No selected file")
+            img = preprocess_img(file_obj.stream)
             pred = predict_result(img)
             return render_template("result.html", predictions=str(pred))
-    except Exception:  # pylint: disable=broad-exception-caught
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        import traceback
+        traceback.print_exc()
         error = "File cannot be processed."
         return render_template("result.html", err=error)
     return render_template("result.html", err="Invalid request.")
