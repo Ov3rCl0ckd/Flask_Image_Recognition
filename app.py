@@ -14,25 +14,25 @@ def main():
 
 
 # Prediction route
-@app.route('/prediction', methods=['POST'])
+@app.route('/prediction', methods=['GET', 'POST'])
 def predict_image_file():
     """Handle image upload and return model prediction."""
+    if request.method == 'GET':
+        return render_template("result.html", err="Please upload an image from the home page.")
     try:
-        if request.method == 'POST':
-            if 'file' not in request.files:
-                raise ValueError("No file part")
-            file_obj = request.files['file']
-            if file_obj.filename == '':
-                raise ValueError("No selected file")
-            img = preprocess_img(file_obj.stream)
-            pred = predict_result(img)
-            return render_template("result.html", predictions=str(pred))
+        if 'file' not in request.files:
+            raise ValueError("No file part")
+        file_obj = request.files['file']
+        if file_obj.filename == '':
+            raise ValueError("No selected file")
+        img = preprocess_img(file_obj.stream)
+        pred = predict_result(img)
+        return render_template("result.html", predictions=str(pred))
     except Exception as e:  # pylint: disable=broad-exception-caught
         import traceback
         traceback.print_exc()
         error = "File cannot be processed."
         return render_template("result.html", err=error)
-    return render_template("result.html", err="Invalid request.")
 
 
 # Driver code
