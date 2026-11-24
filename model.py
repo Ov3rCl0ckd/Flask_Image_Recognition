@@ -11,11 +11,12 @@ model = load_model("digit_model.h5")
 # Preparing and pre-processing the image
 def preprocess_img(img_path):
     """Preprocess image file for model inference."""
-    op_img = Image.open(img_path).convert("RGB")
-    img_resize = op_img.resize((224, 224))
-    img2arr = img_to_array(img_resize) / 255.0
-    img_reshape = img2arr.reshape(1, 224, 224, 3)
-    return img_reshape
+    with Image.open(img_path) as raw_img:
+        op_img = raw_img.convert("RGB")
+        img_resize = op_img.resize((224, 224))
+        img2arr = img_to_array(img_resize) / 255.0
+        img_reshape = img2arr.reshape(1, 224, 224, 3)
+        return img_reshape
 
 
 # Predicting function

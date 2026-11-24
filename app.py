@@ -1,9 +1,12 @@
 """Flask application for hand digit image recognition."""
+import logging
+import os
 from flask import Flask, render_template, request
 from model import preprocess_img, predict_result
 
 # Instantiating flask app
 app = Flask(__name__)
+logging.basicConfig(level=logging.INFO)
 
 
 # Home route
@@ -28,13 +31,15 @@ def predict_image_file():
         img = preprocess_img(file_obj.stream)
         pred = predict_result(img)
         return render_template("result.html", predictions=str(pred))
-    except Exception as e:  # pylint: disable=broad-exception-caught
-        import traceback
-        traceback.print_exc()
-        error = "File cannot be processed."
-        return render_template("result.html", err=error)
+    except (ValueError, IOError, OSError) as err:
+        app.logger.error("Handled processing error: %s", err)
+        return render_template("result.html", err="File cannot be processed.")
+    except Exception:  # pylint: disable=broad-exception-caught
+        app.logger.exception("Unexpected error occurred during prediction.")
+        return render_template("result.html", err="File cannot be processed.")
 
 
 # Driver code
 if __name__ == "__main__":
-    app.run(port=9000, debug=True)
+    is_debug = os.getenv("FLASK_DEBUG", "False").lower() in ("true", "1", "t")
+    app.run(host="0.0.0.0", port=9000, debug=is_debug)
