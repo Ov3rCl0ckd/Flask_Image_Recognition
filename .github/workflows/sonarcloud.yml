@@ -14,26 +14,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@0a5c61591373683505ea898e09a6ea86e8b16631 # v5.0.0
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
       - name: Install dependencies
         run: |
-          python -m pip install --only-binary :all: --upgrade "pip==24.0"
+          python -m pip install --upgrade pip
           pip install --only-binary :all: -r requirements.txt
-          pip install --only-binary :all: "pytest==8.3.3" "pytest-cov==5.0.0"
+          pip install --only-binary :all: pytest pytest-cov
 
       - name: Run Pytest and Generate Coverage
         run: |
           pytest --cov=app --cov=model --cov-report=xml:coverage.xml
 
       - name: SonarQube Cloud scan
-        uses: SonarSource/sonarqube-scan-action@52586bf414db0b388656d027f635c029df495207 # v6.0.0
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
