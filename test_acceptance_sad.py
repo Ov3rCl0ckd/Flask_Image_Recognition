@@ -1,5 +1,6 @@
 # test_acceptance_sad.py
 
+from io import BytesIO
 import pytest
 from app import app
 
@@ -26,9 +27,24 @@ def test_acceptance_missing_file(client):
     response = client.post("/prediction", data={}, content_type="multipart/form-data")
     
     # Assertions:
-    # 1. Ensure the response status code is 200, indicating the request was processed.
     assert response.status_code == 200
-    
-    # 2. Check for a meaningful error message in the response data.
-    #    Modify the message check if your application uses a different error response text.
-    assert b"File cannot be processed" in response.data  # Expected error message
+    assert b"File cannot be processed" in response.data
+
+def test_acceptance_empty_filename(client):
+    """Test POST request with an empty filename to verify validation."""
+    data = {"file": (BytesIO(b""), "")}
+    response = client.post("/prediction", data=data, content_type="multipart/form-data")
+    assert response.status_code == 200
+    assert b"File cannot be processed" in response.data
+
+def test_acceptance_get_prediction_route(client):
+    """Test GET request to /prediction directly to verify informational message."""
+    response = client.get("/prediction")
+    assert response.status_code == 200
+    assert b"Please upload an image" in response.data
+
+def test_acceptance_home_route(client):
+    """Test GET request to home / route."""
+    response = client.get("/")
+    assert response.status_code == 200
+    assert b"Image Recognition" in response.data or response.status_code == 200

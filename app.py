@@ -42,4 +42,5 @@ def predict_image_file():
 # Driver code
 if __name__ == "__main__":
     is_debug = os.getenv("FLASK_DEBUG", "False").lower() in ("true", "1", "t")
-    app.run(host="0.0.0.0", port=9000, debug=is_debug)
+    host_addr = os.getenv("FLASK_RUN_HOST", "127.0.0.1")
+    app.run(host=host_addr, port=9000, debug=is_debug)
